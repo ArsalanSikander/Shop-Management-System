@@ -1,0 +1,586 @@
+# database test
+import sqlite3
+import os
+conn = sqlite3.connect('shopManagement10.db')
+c = conn.cursor()
+os.system = ('cls')  # clear screen
+
+run, stop, repeat = 1, 0, 1
+
+
+def buy(choice_prod, old_price, list_of_all):
+    while choice_prod < 5:
+        amount = 0
+        print("\n\n\n\n\nWhat would you like to buy?\n---------------------------")
+        print("\n 1(Banana) 2(Apple)\n 3(Milk) 4(Bread) \n 5(to quit)")
+        choice_prod = eval(input("Choose Product:  "))
+        if choice_prod == 5:
+            break
+        c.execute("SELECT * FROM products WHERE rowid = ?", (choice_prod,))
+        product = c.fetchone()[0]
+        amount = eval(input("How many?  "))
+        one_buy = []
+        one_buy.append(product)
+        one_buy.append(amount)
+        c.execute("SELECT * FROM products WHERE rowid = ?", (choice_prod,))
+        price = c.fetchone()[1]
+        print("Price--->", price)
+        price_after_amount = price * amount
+        total_price = price_after_amount + old_price
+        old_price = total_price
+        print('You have bought', one_buy)
+        list_of_all.append(one_buy)
+    print("Your receipt is: ", list_of_all)
+    print("The total price was ", total_price)
+    c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC,))
+    old_spending = c.fetchone()[4]
+    new_totalspending = total_price + old_spending
+    print(new_totalspending)
+    c.execute(
+        "UPDATE CustomerInfo SET totalmoney_spentC = ? WHERE rowid = ?", (new_totalspending, loginC))
+    c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC,))
+    print("Your total money spent is now :", c.fetchone()[4])
+    conn.commit
+
+
+while repeat == run:
+    print('\n\n\n\n\n\n\n\n\n\nWelcome to the Shop Management System \n-------------------------------------')
+    userType = eval(input(
+        print("\n     What type of user are you?\n     --------------------------\n(1 = Customer, 2 = Employee, 3 = Owner)")))
+
+
+# Customer Setup
+
+    if userType == 1:
+        login_status = 0
+        print(
+            '\n\n\n\n\n\n\n\n          Customer Type selected\n-------------------------------------------\n\n')
+        print("         Please select your profile.\n         ---------------------------\n\n-------------------------------------\nThe following profiles are available:")
+
+        c.execute("SELECT * FROM CustomerInfo")
+        allCustomers = c.fetchall()
+        cno = 1
+        for C in allCustomers:
+            print(C[0], end="")
+            print("(", cno, ")", sep="")
+            cno += 1
+        loginC = input(print(
+            "\n Select your profile using numbers 1-3 only.\n -------------------------------------------"))
+        while loginC != "1" and loginC != "2" and loginC != "3":
+            print("\n\nPlease choose from values 1-3!")
+            loginC = input(print("Select your Profile :", end=""))
+            print("-----------------------")
+            if loginC == "1" or loginC == "2" or loginC == "3":
+                break
+
+        print("\n\n\n\n\n\n\n\n\n\n\n---------------------------------------\nPlease enter the password for Profile ",
+              loginC, ".\n---------------------------------------\n\n\n", "----------------------------------\n", "Password for this profile is = ", sep='', end='')
+
+        if loginC == '1':
+            c.execute("SELECT * FROM CustomerInfo WHERE rowid=1;")
+        if loginC == '2':
+            c.execute("SELECT * FROM CustomerInfo WHERE rowid=2;")
+        if loginC == '3':
+            c.execute("SELECT * FROM CustomerInfo WHERE rowid=3;")
+        rep = 1
+        print(c.fetchone()[5])
+        passsC = input(print("\n     Write Password Below "))
+
+        login_status = 0
+        while login_status == 0:
+            if passsC == 'AAA' and loginC == '1':
+                login_status = 1
+                break
+            if passsC == 'BBB' and loginC == '2':
+                login_status = 1
+                break
+            if passsC == 'CCC' and loginC == '3':
+                login_status = 1
+                break
+            else:
+                print(
+                    'Please enter the correct password!\n----------------------------------',)
+
+                passsC = input(print("PASSWORD = ", end=""))
+
+        while login_status == 1:
+            action_taken = 0
+            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n------------------------------------\nWhat function would you like to use?\n------------------------------------")
+
+            print("\n Your Info(1)    Shop Statistics(2)\n")
+            print("\n  Discounts(3)     Update Info(4)\n")
+            print(
+                "\n   Buy Screen(4.5)       Logout (5)\n-------------------------------------\n")
+
+            action_taken = eval(input(print("Write a value : ", end="")))
+            print("------------------------------------")
+
+            # check for correct value of action taken
+            while action_taken > 5 or action_taken < 1:
+                action_taken = eval(input(
+                    print("Write a value between 1-5! : ", end="")))
+                print("------------------------------------")
+
+            if action_taken == 1:
+                print("            Your Info:\n------------------------------------")
+                c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                print("Name : ", c.fetchone()[0], sep="")
+                c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                print("Email : ", c.fetchone()[1], sep="")
+                c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                print("Date Account Created : ", c.fetchone()[2], sep="")
+                c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                print("Total Times Shopped : ", c.fetchone()[3], sep="")
+                c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                print("Total Money Spent : ", c.fetchone()[4], sep="")
+                c.execute("SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                print("Password : ", c.fetchone()[5], sep="")
+
+            if action_taken == 2:
+                print(
+                    "       Shop Statistics\n-----------------------------")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Shop Name : ", c.fetchone()[0], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Date Established : ", c.fetchone()[1], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Average Daily Customers : ", c.fetchone()[2], sep="")
+
+            if action_taken == 3:
+                print(
+                    "\n\n\n\n\n\n       Todays Discounts\n----------------------------")
+                c.execute("SELECT * FROM Discounts")
+                Total_items = c.fetchall()
+                for items in Total_items:
+                    print(items)
+
+            if action_taken == 4:
+                print("What Info would you like to update?\n")
+                print("    Email(1)      Times Shopped(2)\n")
+                print("        Total Money Spent(3) ")
+                print("-----------------------------------")
+                update_info = input(print("   Input = ", end=""))
+                # email change
+                if update_info == "1":
+                    print(
+                        "\n---------------------------------\nYour current email is :", end="")
+
+                    c.execute(
+                        "SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                    print(c.fetchone()[1])
+                    print(
+                        "\nWhat would you like to change it to? Please write it exactly below:")
+                    chg_email = input(print(""))
+
+                    c.execute(
+                        "UPDATE CustomerInfo SET emailC = ? WHERE rowid = ?", (chg_email, loginC))
+                    c.execute(
+                        "SELECT * FROM CustomerInfo WHERE rowid = ?", loginC)
+                    print("\n\nYour email has been updated to : ",
+                          c.fetchone()[1])
+                    print("----------------------------------------------\n\n\n\n")
+                    conn.commit
+                # update your times shopped
+                if update_info == "2":
+                    c.execute(
+                        "SELECT * FROM CustomerInfo WHERE rowid =?", loginC)
+                    print("-----------------------------------------\nYour current times shopped are :",
+                          c.fetchone()[3], "\n-----------------------------------------\n\n\n")
+                    new_shops = input(
+                        print("Please write your new total times shopped exactly : ", end=""))
+                    c.execute(
+                        "UPDATE CustomerInfo SET times_shoppedC = ? WHERE rowid = ?", (new_shops, loginC))
+                    c.execute(
+                        "SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                    print("\n\n\n-------------------------------------------\nYour new Total times shopped are : ",
+                          c.fetchone()[3])
+
+                    conn.commit
+                # total spendings changed
+                if update_info == "3":
+                    c.execute(
+                        "SELECT * FROM CustomerInfo WHERE rowid =?", loginC)
+                    print("-----------------------------------------\nYour current total spendings are :",
+                          c.fetchone()[4], "\n-----------------------------------------\n\n\n")
+                    new_earnings = input(
+                        print("Please write your new total spendings exactly with '$' sign preceeding the number : ", end=""))
+                    c.execute(
+                        "UPDATE CustomerInfo SET totalmoney_spentC = ? WHERE rowid = ?", (new_earnings, loginC))
+                    c.execute(
+                        "SELECT * FROM CustomerInfo WHERE rowid = ?", (loginC))
+                    print("\n\n\n-------------------------------------------\nYour new Total money spendings are : ",
+                          c.fetchone()[4])
+
+                    conn.commit
+
+            if action_taken == 4.5:
+                buy(0, 0, [])
+
+            if action_taken == 5:
+                login_status = 0
+                print(
+                    "\nYou have been logged out of your account.\n-----------------------------------------\n")
+
+            if login_status == 1:
+                choice_afterlogin = eval(input(print(
+                    "-------------------------------------------------\nWould you like to logout or use another function?\n\n      (Logout = 1, Don't Logout = 2)")))
+
+            while login_status == 1:
+                if choice_afterlogin == 1:
+                    login_status = 0
+                    print("You have been logged out of your account.")
+                    break
+                if choice_afterlogin == 2:
+                    login_status = 1
+                    break
+                else:
+                    print(
+                        "Please enter a value of 1 or 2!\n-------------------------------")
+                    choice_afterlogin = eval(input(print(
+                        "Would you like to logout or use another function?\n\n      (Logout = 1, Don't Logout = 2)")))
+
+
+# Employeeeeeeee
+    if userType == 2:
+        login_status = 0
+        print(
+            '\n\n\n\n\n\n\n\n          Employee Type selected\n-------------------------------------------\n\n')
+        print("         Please select your profile.\n         ---------------------------\n\n-------------------------------------\nThe following profiles are available:")
+
+        c.execute("SELECT * FROM EmployeeInfo")
+        allEmployees = c.fetchall()
+        eno = 1
+        for E in allEmployees:
+            print(E[0], end="")
+            print("(", eno, ")", sep="")
+            eno += 1
+        loginE = input(print(
+            "\n Select your profile using numbers 1-2 only.\n -------------------------------------------"))
+        while loginE != "1" and loginE != "2":
+            print("\n\nPlease choose from values 1-2!")
+            loginE = input(print("Select your Profile :", end=""))
+            print("-----------------------")
+            if loginE == "1" or loginE == "2" or loginE == "3":
+                break
+        print("\n\n\n\n\n\n\n\n\n\n\n---------------------------------------\nPlease enter the password for Profile ",
+              loginE, ".\n---------------------------------------\n\n\n", "----------------------------------\n", "Password for this profile is = ", sep='', end='')
+
+        c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+        print(c.fetchone()[4])
+
+        c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+        passsE = input(print("\n     Write Password Below "))
+        if passsE != c.fetchone()[4]:
+            print("Please enter the correct password!", end="")
+            passsE = input(print(""))
+        c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+        if passsE == c.fetchone()[4]:
+            login_status = 1
+
+        while login_status == 1:
+            action_taken = 0
+            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n------------------------------------\nWhat function would you like to use?\n------------------------------------")
+
+            print("\n Your Info(1)    Shop Statistics(2)\n")
+            print("\n    Shifts(3)     Update Info(4)\n")
+            print("              Logout(5)")
+            print("\n-------------------------------------\n")
+
+            action_taken = eval(input(print("Write a value : ", end="")))
+            print("------------------------------------")
+
+            # check for correct value of action taken
+            while action_taken > 5 or action_taken < 1:
+                action_taken = eval(input(
+                    print("Write a value between 1-5! : ", end="")))
+                print("------------------------------------")
+
+            if action_taken == 1:
+                print("            Your Info:\n------------------------------------")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                print("Name : ", c.fetchone()[0], sep="")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                print("Email : ", c.fetchone()[1], sep="")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                print("Date Hired : ", c.fetchone()[2], sep="")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                print("Current Wage : ", c.fetchone()[3], sep="")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                print("Password : ", c.fetchone()[4], sep="")
+
+            if action_taken == 2:
+                print(
+                    "       Shop Statistics\n-----------------------------")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Shop Name : ", c.fetchone()[0], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Date Established : ", c.fetchone()[1], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Average Daily Customers : ", c.fetchone()[2], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Most Sold Items : ", c.fetchone()[3], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Least Sold Items : ", c.fetchone()[4], sep="")
+
+            if action_taken == 3:
+                print(
+                    "\n\n\n\n\n\n         Todays Shifts  \n----------------------------")
+                c.execute("SELECT * FROM EmployeeInfo")
+                print("Your Shift is from : ", c.fetchone()[5], end="")
+
+            if action_taken == 4:
+                print("What Info would you like to update?\n")
+                print("    Email(1)      Shifts (2)\n")
+                print("        Contract Dates(3) ")
+                print("-----------------------------------")
+                update_info = input(print("   Input = ", end=""))
+                # email change
+                if update_info == "1":
+                    print(
+                        "\n---------------------------------\nYour current email is :", end="")
+
+                    c.execute(
+                        "SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                    print(c.fetchone()[1])
+                    print(
+                        "\nWhat would you like to change it to? Please write it exactly below:")
+                    chg_emailE = input(print(""))
+
+                    c.execute(
+                        "UPDATE EmployeeInfo SET emailE = ? WHERE rowid = ?", (chg_emailE, loginE))
+                    c.execute(
+                        "SELECT * FROM EmployeeInfo WHERE rowid = ?", loginE)
+                    print("\n\nYour email has been updated to : ",
+                          c.fetchone()[1])
+                    print("----------------------------------------------\n\n\n\n")
+                    conn.commit
+                # update your shifts
+                if update_info == "2":
+                    c.execute(
+                        "SELECT * FROM EmployeeInfo WHERE rowid =?", loginE)
+                    print("-----------------------------------------\nYour current shift is :",
+                          c.fetchone()[5], "\n-----------------------------------------\n\n\n")
+                    shift_choiceD, shift_choiceN = "9am-4pm", "4pm-10pm"
+                    print(
+                        "What shift would you like to change to?\n     (1=9am-4pm) (2=4pm-10pm)\n---------------------------------------\n")
+                    choice = eval(input(print("")))
+                    if choice == 1:
+                        c.execute(
+                            "UPDATE EmployeeInfo SET Shifts = ? WHERE rowid = ?", (shift_choiceD, loginE))
+                        c.execute(
+                            "SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                        print(
+                            "------------------------------------\nYour Shift has been set to : ", c.fetchone()[5])
+                        print("------------------------------------")
+
+                    if choice == 2:
+                        c.execute(
+                            "UPDATE EmployeeInfo SET Shifts = ? WHERE rowid = ?", (shift_choiceN, loginE))
+                        c.execute(
+                            "SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                        print(
+                            "------------------------------------\nYour Shift has been set to : ", c.fetchone()[5])
+                        print("------------------------------------")
+
+                    conn.commit
+
+                # Contractchanged
+                if update_info == "3":
+                    c.execute(
+                        "SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                    print("\n-------------------------------------------\nYour current contract is ending in :",
+                          c.fetchone()[6])
+                    chg_cont = input(print(
+                        "Please write the amount of time your contract ends in exactly in days, months or years."))
+                    c.execute(
+                        "UPDATE EmployeeInfo SET Contract = ? WHERE rowid = ?", (chg_cont, loginE))
+                    c.execute(
+                        "SELECT * FROM EmployeeInfo WHERE rowid = ?", (loginE))
+                    print("\nYour contract date has changed to end in : ",
+                          c.fetchone()[6])
+
+                    conn.commit
+            if action_taken == 5:
+                login_status = 0
+                print(
+                    "You have been logged out of your account.\n-----------------------------------------")
+
+            if login_status == 1:
+                choice_afterlogin = eval(input(print(
+                    "\n-------------------------------------------------\nWould you like to logout or use another function?\n\n      (Logout = 1, Don't Logout = 2)")))
+
+            while login_status == 1:
+                if choice_afterlogin == 1:
+                    login_status = 0
+                    print("You have been logged out of your account.")
+                    break
+                if choice_afterlogin == 2:
+                    login_status = 1
+                    break
+                else:
+                    print(
+                        "Please enter a value of 1 or 2!\n-------------------------------")
+                    choice_afterlogin = eval(input(print(
+                        "Would you like to logout or use another function?\n\n      (Logout = 1, Don't Logout = 2)")))
+
+    if userType == 3:
+        login_status = 0
+        action_taken = 0
+        print(
+            '\n\n\n\n\n\n\n\n          Owner Type selected\n-------------------------------------------\n\n')
+        print("         Please select your profile.\n         ---------------------------\n\n-------------------------------------\n\nThe following profiles are available:")
+
+        c.execute("SELECT * FROM OwnerInfo")
+        allOwners = c.fetchall()
+        ono = 1
+        for O in allOwners:
+            print(O[0], end="")
+            print("(", ono, ")", sep="")
+            ono += 1
+
+        choiceO = input(print("\nPlease select your profile :"))
+        while choiceO != '1':
+            choiceO = input(print("\nWrite the correct value!"))
+            if choiceO == '1':
+                break
+        print("\n------------------------------------\nEnter the Password for this profile\n------------------------------------")
+        c.execute("SELECT * FROM OwnerInfo WHERE rowid = ?", (choiceO))
+        print("The Password is : ", c.fetchone()[5])
+        passsO = input(print("\n    Write password below"))
+
+        c.execute("SELECT * FROM OwnerInfo WHERE rowid =?", (choiceO))
+        while passsO != c.fetchone()[5]:
+            c.execute("SELECT * FROM OwnerInfo WHERE rowid =?", (choiceO))
+            passsO = input(
+                print("\n---------------------------\nWrite the correct password!"))
+        loginO = 1
+
+        while loginO == 1:
+            print("\n\n\n\n\n\n\n\n\n\n\n------------------------------------\nWhat function would you like to use?\n------------------------------------")
+
+            print("\n Your Info(1)    Shop Statistics(2)\n")
+            print("\nEmployee Shifts(3)     Update Info(4)\n")
+            print("              Logout(5)")
+            print("\n-------------------------------------\n")
+
+            action_taken = eval(input(print("Write a value : ", end="")))
+            print("------------------------------------")
+
+            # check for correct value of action taken
+            while action_taken > 5 or action_taken < 1:
+                action_taken = eval(input(
+                    print("Write a value between 1-5! : ", end="")))
+                print("------------------------------------")
+
+            if action_taken == 1:
+                print("            Your Info:\n------------------------------------")
+                c.execute("SELECT * FROM OwnerInfo")
+                print("Name : ", c.fetchone()[0])
+                c.execute("SELECT * FROM OwnerInfo")
+                print("Email : ", c.fetchone()[1])
+                c.execute("SELECT * FROM OwnerInfo")
+                print("Established Date : ", c.fetchone()[2])
+                c.execute("SELECT * FROM OwnerInfo")
+                print("Employees Working : ", c.fetchone()[3])
+                c.execute("SELECT * FROM OwnerInfo")
+                print("Next orders arrive on : ", c.fetchone()[4])
+                c.execute("SELECT * FROM OwnerInfo")
+                print("Password : ", c.fetchone()[5])
+
+            if action_taken == 2:
+                print(
+                    "       Shop Statistics\n-----------------------------")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Shop Name : ", c.fetchone()[0], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Date Established : ", c.fetchone()[1], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Average Daily Customers : ", c.fetchone()[2], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Most Sold Items : ", c.fetchone()[3], sep="")
+                c.execute("SELECT * FROM ShopInfo")
+                print("Least Sold Items : ", c.fetchone()[4], sep="")
+
+            if action_taken == 3:
+                print(
+                    "\n\n\n       Employee Shifts\n-----------------------------")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = 1")
+                print("Employee : ", c.fetchone()[0], end="")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = 1")
+                print("    Shift : ", c.fetchone()[5])
+                print("\n")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = 2")
+                print("Employee : ", c.fetchone()[0], end="")
+                c.execute("SELECT * FROM EmployeeInfo WHERE rowid = 2")
+                print("    Shift : ", c.fetchone()[5])
+
+            if action_taken == 4:
+                login_status = 1
+                print(
+                    "What information would you like to update?\n------------------------------------------\n")
+                print("     Email(1)        Order Date(2)        ")
+                update_choice = eval(input(print("")))
+                if update_choice == 1:
+                    c.execute("SELECT * FROM OwnerInfo")
+                    new_emailO = input(print(
+                        "What would you like to change your email to?\n--------------------------------------------\n\nYour current email is: " + c.fetchone()[1]))
+                    print("\n")
+                    c.execute(
+                        "UPDATE OwnerInfo SET emailO = ? WHERE rowid = ?", (new_emailO, 1))
+                    c.execute("SELECT * FROM OwnerInfo")
+                    print("Your email is now changed to "+c.fetchone()[1])
+                    anything = input(print("Any key to continue"))
+                    conn.commit
+
+                if update_choice == 2:
+                    c.execute("SELECT * FROM OwnerInfo")
+                    new_order_date = input(print(
+                        "What would you like to change the order date to?\n------------------------------------------------\nIt is currently " + c.fetchone()[4]+"Please write the date exactly."))
+                    c.execute(
+                        "UPDATE OwnerInfo SET next_order_dateO = ? WHERE rowid = ?", (new_order_date, 1))
+                    c.execute("SELECT * FROM OwnerInfo")
+                    print("\nYour order date is now changed to " +
+                          c.fetchone()[4])
+                    anything = input(print("Any key to continue"))
+                    conn.commit
+
+            if action_taken == 5:
+                login_status = 0
+                print(
+                    "You have been logged out of your account.\n-----------------------------------------")
+
+            if loginO == 1:
+                choice_afterlogin = eval(input(print(
+                    "\n-------------------------------------------------\nWould you like to logout or use another function?\n\n      (Logout = 1, Don't Logout = 2)")))
+                if choice_afterlogin == 1:
+                    loginO = 0
+
+            while loginO == 1:
+                if choice_afterlogin == 1:
+                    loginO = 0
+                    print("You have been logged out of your account.")
+                    break
+                if choice_afterlogin == 2:
+                    loginO = 1
+                    break
+                else:
+                    print(
+                        "Please enter a value of 1 or 2!\n-------------------------------")
+                    choice_afterlogin = eval(input(print(
+                        "Would you like to logout or use another function?\n\n      (Logout = 1, Don't Logout = 2)")))
+
+    if userType != 1 and userType != 2 and userType != 3:
+        continue
+# after running respective functions
+    end_program = eval(
+        input(print("\n\n\n\n\n\n\n---------------------------------------------------------\nWould you like to return to start screen or quit program?\n---------------------------------------------------------\n            (Start Screen = 1, Quit = 2)")))
+    if end_program == 1:
+        repeat = run
+    if end_program == 2:
+        repeat = stop
+        print("\n\n\n------------\nPROGRAM QUIT\n------------")
+
+
+conn.commit()
+
+conn.close
